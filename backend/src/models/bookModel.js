@@ -10,7 +10,7 @@ const Book = sequelize.define('Book', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  year_published: {
+  publishedYear: {
     type: DataTypes.INTEGER,
   },
   category: {
@@ -20,6 +20,11 @@ const Book = sequelize.define('Book', {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
   },
+  isbn: {
+    type: DataTypes.STRING,
+  },
+}, {
+  timestamps: true, 
 });
 
 module.exports = Book;
