@@ -1,1 +1,94 @@
-<p>book-form works!</p>
+<div class="form-container">
+    <h2>{{ isEditMode ? 'Modifier le livre' : 'Ajouter un livre' }}</h2>
+  
+    <div *ngIf="loading" class="loading">
+      Chargement...
+    </div>
+  
+    <div *ngIf="error" class="error-message">
+      {{ error }}
+    </div>
+  
+    <form [formGroup]="bookForm" (ngSubmit)="onSubmit()">
+      <!-- Champ Titre -->
+      <div class="form-group">
+        <label for="title">Titre</label>
+        <input id="title" type="text" formControlName="title" />
+        <div class="error" *ngIf="titleControl?.touched">
+          <div *ngIf="titleControl?.errors?.['required']">
+            Le titre est requis
+          </div>
+          <div *ngIf="titleControl?.errors?.['minlength']">
+            Le titre doit comporter au moins 3 caractères
+          </div>
+        </div>
+      </div>
+  
+      <!-- Champ Auteur -->
+      <div class="form-group">
+        <label for="author">Auteur</label>
+        <input id="author" type="text" formControlName="author" />
+        <div class="error" *ngIf="authorControl?.touched">
+          <div *ngIf="authorControl?.errors?.['required']">
+            L'auteur est requis
+          </div>
+          <div *ngIf="authorControl?.errors?.['minlength']">
+            L'auteur doit comporter au moins 2 caractères
+          </div>
+        </div>
+      </div>
+  
+      <!-- Champ Année de publication -->
+      <div class="form-group">
+        <label for="publishedYear">Année de publication</label>
+        <input id="publishedYear" type="number" formControlName="publishedYear" />
+        <div class="error" *ngIf="publishedYearControl?.touched">
+          <div *ngIf="publishedYearControl?.errors?.['required']">
+            L'année de publication est requise
+          </div>
+          <div *ngIf="publishedYearControl?.errors?.['min']">
+            L'année de publication doit être ≥ 1000
+          </div>
+          <div *ngIf="publishedYearControl?.errors?.['max']">
+            L'année de publication doit être ≤ {{ currentYear }}
+          </div>
+        </div>
+      </div>
+  
+      <!-- Champ Catégorie -->
+      <div class="form-group">
+        <label for="category">Catégorie</label>
+        <input id="category" type="text" formControlName="category" />
+        <div class="error" *ngIf="categoryControl?.touched">
+          <div *ngIf="categoryControl?.errors?.['required']">
+            La catégorie est requise
+          </div>
+        </div>
+      </div>
+  
+      <!-- Champ ISBN -->
+      <div class="form-group">
+        <label for="isbn">ISBN</label>
+        <input id="isbn" type="text" formControlName="isbn" />
+      </div>
+  
+      <!-- Champ Disponible -->
+      <div class="form-group">
+        <label>
+          <input type="checkbox" formControlName="available" />
+          Disponible
+        </label>
+      </div>
+  
+      <!-- Actions -->
+      <div class="form-actions">
+        <button type="submit" [disabled]="!bookForm.valid || loading">
+          {{ isEditMode ? 'Mettre à jour' : 'Ajouter' }}
+        </button>
+        <button type="button" (click)="onCancel()" [disabled]="loading">
+          Annuler
+        </button>
+      </div>
+    </form>
+  </div>
+  

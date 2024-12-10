@@ -1,6 +1,53 @@
 <div class="book-list-container">
     <h2>Liste des Livres</h2>
   
+    <!-- Statistiques -->
+    <div class="statistics-container" *ngIf="statistics">
+      <h3>Statistiques</h3>
+      
+      <div class="statistics-grid">
+        <!-- Livres par catégorie -->
+        <div class="stat-card" *ngIf="statistics?.booksByCategory?.length">
+          <h4>Par catégorie</h4>
+          <ul>
+            <li *ngFor="let stat of statistics?.booksByCategory">
+              {{ stat.category }}: {{ stat.count }} livre(s)
+            </li>
+          </ul>
+        </div>
+  
+        <!-- Livres par année -->
+        <div class="stat-card" *ngIf="statistics?.booksByYear?.length">
+          <h4>Par année</h4>
+          <ul>
+            <li *ngFor="let stat of statistics?.booksByYear">
+              {{ stat.year }}: {{ stat.count }} livre(s)
+            </li>
+          </ul>
+        </div>
+  
+        <!-- Disponibilité -->
+        <div class="stat-card" *ngIf="statistics?.booksAvailability?.length">
+          <h4>Disponibilité</h4>
+          <ul>
+            <li *ngFor="let stat of statistics?.booksAvailability">
+              {{ stat.available ? 'Disponible' : 'Non disponible' }}: {{ stat.count }} livre(s)
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  
+    <div class="actions-container">
+      <div class="search-form">
+        <input type="text" [(ngModel)]="searchParams.title" placeholder="Rechercher par titre">
+        <input type="text" [(ngModel)]="searchParams.author" placeholder="Rechercher par auteur">
+        <input type="text" [(ngModel)]="searchParams.category" placeholder="Rechercher par catégorie">
+        <button class="btn-edit" (click)="onSearch()">Rechercher</button>
+      </div>
+      <button class="btn-add" (click)="addBook()">Ajouter un livre</button>
+    </div>
+  
     <div *ngIf="loading" class="loading">
       Chargement des livres...
     </div>
@@ -9,7 +56,7 @@
       {{ error }}
     </div>
   
-    <table *ngIf="!loading && !error" class="book-table">
+    <table class="book-table" *ngIf="!loading && !error">
       <thead>
         <tr>
           <th>Titre</th>
@@ -25,9 +72,9 @@
           <td>{{ book.author }}</td>
           <td>{{ book.publishedYear }}</td>
           <td>{{ book.category }}</td>
-          <td>
-            <button (click)="editBook(book)">Modifier</button>
-            <button (click)="deleteBook(book)">Supprimer</button>
+          <td class="action-buttons">
+            <button class="btn-edit" (click)="editBook(book)">Modifier</button>
+            <button class="btn-delete" (click)="deleteBook(book)">Supprimer</button>
           </td>
         </tr>
       </tbody>
@@ -39,3 +86,4 @@
       <button (click)="onPageChange(currentPage + 1)" [disabled]="currentPage === totalPages">Suivant</button>
     </div>
   </div>
+  

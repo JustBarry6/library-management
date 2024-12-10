@@ -171,44 +171,40 @@ exports.searchBooks = async (req, res) => {
 
 // Statistiques sur les livres
 exports.getStatistics = async (req, res) => {
-    try {
-      // Nombre de livres par catégorie
-      const booksByCategory = await Book.findAll({
-        attributes: ['category', [sequelize.fn('COUNT', sequelize.col('category')), 'count']],
-        group: ['category'],
-        raw: true,
-      }).map((entry) => ({
-        category: entry.category || 'Inconnu',
-        count: parseInt(entry.count, 10),
-      }));
-  
-      // Répartition par année de publication
-      const booksByYear = await Book.findAll({
-        attributes: ['publishedYear', [sequelize.fn('COUNT', sequelize.col('publishedYear')), 'count']],
-        group: ['publishedYear'],
-        raw: true,
-      }).map((entry) => ({
-        year: entry.publishedYear || 'Inconnu',
-        count: parseInt(entry.count, 10),
-      }));
-  
-      // Nombre de livres disponibles/inutilisables
-      const booksAvailability = await Book.findAll({
-        attributes: ['available', [sequelize.fn('COUNT', sequelize.col('available')), 'count']],
-        group: ['available'],
-        raw: true,
-      }).map((entry) => ({
-        available: entry.available,
-        count: parseInt(entry.count, 10),
-      }));
-  
-      res.json({
-        booksByCategory,
-        booksByYear,
-        booksAvailability,
-      });
-    } catch (err) {
-      console.error('Erreur lors de la récupération des statistiques :', err);
-      res.status(500).json({ error: 'Erreur serveur lors de la récupération des statistiques' });
-    }
-  };  
+  try {
+    // Books by category
+    const booksByCategory = await sequelize.query(`
+      SELECT category, COUNT(*) as count 
+      FROM "Books" 
+      GROUP BY category
+    `, { type: sequelize.QueryTypes.SELECT });
+
+    // Books by year
+    const booksByYear = await sequelize.query(`
+      SELECT "publishedYear", COUNT(*) as count 
+      FROM "Books" 
+      GROUP BY "publishedYear"
+    `, { type: sequelize.QueryTypes.SELECT });
+
+    // Books availability
+    const booksAvailability = await sequelize.query(`
+      SELECT available, COUNT(*) as count 
+      FROM "Books" 
+      GROUP BY available
+    `, { type: sequelize.QueryTypes.SELECT });
+
+    const statistics = {
+      booksByCategory,
+      booksByYear,
+      booksAvailability
+    };
+
+    res.json(statistics);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des statistiques:', error);
+    res.status(500).json({ 
+      error: 'Erreur lors de la récupération des statistiques',
+      details: error.message 
+    });
+  }
+};

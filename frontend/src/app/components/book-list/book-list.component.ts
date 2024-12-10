@@ -1,14 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, NgIf, NgFor } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { BookService } from '../../services/book.service';
-import { Book } from '../../models/book.model';
-import { catchError } from 'rxjs/operators';
+import { Book, BookStatistics } from '../../models/book.model';
+import { SearchParams } from '../../models/search-params.model';
+import { catchError, finalize } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 @Component({
   selector: 'app-book-list',
-  standalone: true, // Indique que ce composant est autonome
-  imports: [CommonModule, NgIf, NgFor], // Ajouter HttpClientModule aux imports
+  standalone: true,
+  imports: [CommonModule, NgIf, NgFor, FormsModule],
   templateUrl: './book-list.component.html',
   styleUrls: ['./book-list.component.css']
 })
@@ -18,11 +21,17 @@ export class BookListComponent implements OnInit {
   currentPage = 1;
   loading = false;
   error: string | null = null;
+  statistics: BookStatistics | null = null;
+  searchParams: SearchParams = {};
 
-  constructor(private bookService: BookService) {}
+  constructor(
+    private bookService: BookService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadBooks();
+    this.loadStatistics();
   }
 
   loadBooks(page = 1): void {
@@ -46,15 +55,30 @@ export class BookListComponent implements OnInit {
       });
   }
 
-  onPageChange(page: number): void {
-    if (page > 0 && page <= this.totalPages) {
-      this.loadBooks(page);
-    }
+  loadStatistics(): void {
+    this.loading = true;
+    this.bookService.getStatistics()
+      .pipe(
+        catchError(err => {
+          console.error('Erreur lors du chargement des statistiques:', err);
+          this.error = `Erreur lors du chargement des statistiques: ${err.error?.message || err.message}`;
+          return of(null);
+        }),
+        finalize(() => this.loading = false)
+      )
+      .subscribe(stats => {
+        if (stats) {
+          this.statistics = stats;
+        }
+      });
+  }
+
+  addBook(): void {
+    this.router.navigate(['/books/add']);
   }
 
   editBook(book: Book): void {
-    // Implémentez la logique pour modifier un livre
-    console.log('Modifier le livre', book);
+    this.router.navigate(['/books/edit', book.id]);
   }
 
   deleteBook(book: Book): void {
@@ -67,11 +91,32 @@ export class BookListComponent implements OnInit {
             this.currentPage--;
             this.loadBooks(this.currentPage);
           }
+          this.loadStatistics(); // Recharger les statistiques après suppression
         },
         err => {
           this.error = 'Impossible de supprimer le livre. Veuillez réessayer.';
         }
       );
+    }
+  }
+
+  onSearch(): void {
+    this.bookService.searchBooks(this.searchParams)
+      .pipe(
+        catchError(err => {
+          this.error = 'Impossible de rechercher les livres. Veuillez réessayer.';
+          return of([]);
+        })
+      )
+      .subscribe(books => {
+        this.books = books;
+        this.loading = false;
+      });
+  }
+
+  onPageChange(page: number): void {
+    if (page > 0 && page <= this.totalPages) {
+      this.loadBooks(page);
     }
   }
 }
