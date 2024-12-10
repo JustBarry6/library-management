@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, NgIf, NgFor } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { BookService } from '../../services/book.service';
 import { Book, BookStatistics } from '../../models/book.model';
 import { SearchParams } from '../../models/search-params.model';
@@ -11,7 +11,7 @@ import { of } from 'rxjs';
 @Component({
   selector: 'app-book-list',
   standalone: true,
-  imports: [CommonModule, NgIf, NgFor, FormsModule],
+  imports: [CommonModule, NgIf, NgFor, FormsModule, RouterModule],
   templateUrl: './book-list.component.html',
   styleUrls: ['./book-list.component.css']
 })
@@ -74,11 +74,17 @@ export class BookListComponent implements OnInit {
   }
 
   addBook(): void {
-    this.router.navigate(['/books/add']);
+    console.log('Navigation vers le formulaire d\'ajout');
+    this.router.navigate(['/books/add'])
+      .then(() => console.log('Navigation réussie'))
+      .catch(err => console.error('Erreur de navigation:', err));
   }
 
   editBook(book: Book): void {
-    this.router.navigate(['/books/edit', book.id]);
+    console.log('Navigation vers le formulaire de modification:', book.id);
+    this.router.navigate(['/books/edit', book.id])
+      .then(() => console.log('Navigation réussie'))
+      .catch(err => console.error('Erreur de navigation:', err));
   }
 
   deleteBook(book: Book): void {

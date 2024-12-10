@@ -2,18 +2,14 @@ const express = require('express');
 const router = express.Router();
 const bookController = require('../controllers/bookController');
 
-// Routes existantes
-router.get('/', bookController.getAllBooks);
-router.post('/', bookController.createBook);
+router.get('/search', bookController.searchBooks);
+router.get('/statistics', bookController.getStatistics);
 
-// Nouvelles routes
+router.get('/:id', bookController.getBookById);
 router.put('/:id', bookController.updateBook);
 router.delete('/:id', bookController.deleteBook);
 
-// Route de recherche
-router.get('/search', bookController.searchBooks);
-
-// Route de statistiques
-router.get('/statistics', bookController.getStatistics);
+router.get('/', bookController.getAllBooks);
+router.post('/', bookController.createBook);
 
 module.exports = router;

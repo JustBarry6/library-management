@@ -4,12 +4,16 @@ const Joi = require('joi');
 const sequelize = require('../config/database');
 
 // Fonction utilitaire pour vérifier l'existence d'un livre
+// const findBookById = async (id) => {
+//   const book = await Book.findByPk(id);
+//   if (!book) {
+//     throw new Error('Livre non trouvé');
+//   }
+//   return book;
+// };
 const findBookById = async (id) => {
   const book = await Book.findByPk(id);
-  if (!book) {
-    throw new Error('Livre non trouvé');
-  }
-  return book;
+  return book; // Retourne null si non trouvé
 };
 
 // Schéma de validation pour les livres
@@ -55,6 +59,11 @@ exports.getBookById = async (req, res) => {
   try {
     const { id } = req.params;
     const book = await findBookById(id);
+
+    if (!book) {
+      return res.status(404).json({ error: 'Livre non trouvé.' });
+    }
+
     res.json(book);
   } catch (err) {
     console.error('Erreur lors de la récupération du livre :', err);

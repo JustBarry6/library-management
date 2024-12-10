@@ -1,0 +1,51 @@
+<!-- book-detail.component.html -->
+
+<!-- Gestion des états de chargement et d'erreur -->
+<div *ngIf="loading" class="loading">
+    <p>Chargement du livre en cours...</p>
+  </div>
+  
+  <div *ngIf="error" class="error">
+    <p>{{ error }}</p>
+    <button (click)="goBack()">Retour à la liste</button>
+  </div>
+  
+  <!-- Détails du livre -->
+  <div class="book-detail-container" *ngIf="book">
+    <h2>{{ book.title }}</h2>
+    
+    <div class="book-info">
+      <p><strong>Auteur :</strong> {{ book.author }}</p>
+      <p><strong>Année de publication :</strong> {{ book.publishedYear || 'Non renseignée' }}</p>
+      <p><strong>Catégorie :</strong> {{ book.category || 'Non catégorisé' }}</p>
+      <p><strong>ISBN :</strong> {{ book.isbn || 'Non disponible' }}</p>
+      <p><strong>Disponibilité :</strong> 
+        <span [ngClass]="{
+          'available': book.available,
+          'unavailable': !book.available
+        }">
+          {{ book.available ? 'Disponible' : 'Non disponible' }}
+        </span>
+      </p>
+    </div>
+  
+    <div class="book-actions">
+      <button 
+        class="btn-edit" 
+        (click)="editBook()"
+        [disabled]="!book.id">
+        Modifier
+      </button>
+      <button 
+        class="btn-delete" 
+        (click)="deleteBook()"
+        [disabled]="!book.id">
+        Supprimer
+      </button>
+      <button 
+        class="btn-back" 
+        (click)="goBack()">
+        Retour à la liste
+      </button>
+    </div>
+  </div>
